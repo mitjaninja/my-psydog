@@ -1,0 +1,155 @@
+// Схема из SPEC.md, шаг 2. Шкалы потребностей не храним — вычисляем по Completion за 7 дней.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENT
+  PSYCHOLOGIST
+}
+
+enum Need {
+  SAFETY
+  AUTONOMY
+  EXPRESSION
+  PLAY
+  LIMITS
+}
+
+// Состояния персонажа
+enum Mood {
+  CALM
+  JOYFUL
+  HIDING
+  SCARED
+}
+
+enum InputType {
+  TEXT
+  LIST
+  CHECKLIST
+  TIMER
+}
+
+model User {
+  id           String        @id @default(cuid())
+  tgId         BigInt        @unique
+  role         Role?
+  firstName    String? // из initData, только для отображения
+  createdAt    DateTime      @default(now())
+  psychologist Psychologist?
+  client       Client?
+}
+
+model Psychologist {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+  displayName String
+  clients     Client[]
+  invites     Invite[]
+  createdAt   DateTime @default(now())
+}
+
+model Client {
+  id             String        @id @default(cuid())
+  userId         String        @unique
+  user           User          @relation(fields: [userId], references: [id])
+  psychologistId String
+  psychologist   Psychologist  @relation(fields: [psychologistId], references: [id])
+  alias          String // как психолог подписал клиента, напр. «А., вторник»
+  characterName  String        @default("Малыш")
+  reminderHour   Int? // локальный час напоминания, null = выкл
+  timezone       String        @default("Europe/Moscow")
+  onboardedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  consents       Consent[]
+  checkins       Checkin[]
+  completions    Completion[]
+  assignments    Assignment[]
+  crisisEvents   CrisisEvent[]
+}
+
+model Invite {
+  id             String       @id @default(cuid())
+  code           String       @unique // 10 символов, url-safe
+  psychologistId String
+  psychologist   Psychologist @relation(fields: [psychologistId], references: [id])
+  alias          String
+  usedAt         DateTime?
+  expiresAt      DateTime
+}
+
+model Practice {
+  id           String       @id // slug, напр. "safe-place"
+  need         Need
+  title        String
+  summary      String // 1 предложение
+  steps        Json // string[]
+  inputType    InputType
+  durationMin  Int
+  isComforting Boolean      @default(false) // для режима «мне тяжело»
+  isActive     Boolean      @default(true)
+  // Обратные связи — Prisma требует их для Assignment.practice и Completion.practice
+  assignments  Assignment[]
+  completions  Completion[]
+}
+
+model Assignment {
+  id         String    @id @default(cuid())
+  clientId   String
+  client     Client    @relation(fields: [clientId], references: [id])
+  practiceId String
+  practice   Practice  @relation(fields: [practiceId], references: [id])
+  activeFrom DateTime  @default(now())
+  activeTo   DateTime?
+}
+
+model Checkin {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+  date      DateTime @db.Date
+  mood      Mood
+  lowNeed   Need?
+  isHardDay Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@unique([clientId, date])
+}
+
+model Completion {
+  id          String   @id @default(cuid())
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id])
+  practiceId  String
+  practice    Practice @relation(fields: [practiceId], references: [id])
+  noteEnc     String? // зашифрованная заметка (AES-256-GCM)
+  shareNote   Boolean  @default(false)
+  completedAt DateTime @default(now())
+}
+
+model Consent {
+  id        String    @id @default(cuid())
+  clientId  String
+  client    Client    @relation(fields: [clientId], references: [id])
+  type      String // "data_processing" | "share_with_psychologist" | "crisis_notify"
+  version   String
+  givenAt   DateTime  @default(now())
+  revokedAt DateTime?
+}
+
+model CrisisEvent {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+  source    String // "button" | "keyword"
+  notified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
