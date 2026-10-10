@@ -8,6 +8,13 @@
   --button: var(--tg-theme-button-color, #3f7cc0);
   --button-text: var(--tg-theme-button-text-color, #ffffff);
   --secondary-bg: var(--tg-theme-secondary-bg-color, #f3f4f6);
+
+  /* Персонаж — меняются здесь */
+  --character-body: #f7c59f;
+  --character-belly: #fde4cc;
+  --character-shade: #e8a97c;
+  --character-cheek: #f3a0a0;
+  --character-line: #4a3428;
 }
 
 @theme inline {

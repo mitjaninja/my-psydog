@@ -1,0 +1,122 @@
+/* Анимации персонажа. Цвета — CSS-переменные из index.css, их легко поменять. */
+
+.character {
+  overflow: visible;
+}
+
+.character .ch-figure,
+.character .ch-arm-wave {
+  transform-box: fill-box;
+}
+
+.character .ch-figure {
+  transform-origin: 50% 100%;
+}
+
+/* CALM — лёгкое «дыхание» */
+.character[data-mood='CALM'] .ch-figure {
+  animation: ch-breathe 4s ease-in-out infinite;
+}
+
+/* JOYFUL — подпрыгивает */
+.character[data-mood='JOYFUL'] .ch-figure {
+  animation: ch-bounce 0.9s cubic-bezier(0.3, 0, 0.4, 1) infinite;
+}
+.character[data-mood='JOYFUL'] .ch-shadow {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: ch-shadow 0.9s cubic-bezier(0.3, 0, 0.4, 1) infinite;
+}
+
+/* HIDING — прикрыл глаза, чуть покачивается */
+.character[data-mood='HIDING'] .ch-figure {
+  animation: ch-sway 3s ease-in-out infinite;
+}
+
+/* SCARED — сжался и дрожит */
+.character[data-mood='SCARED'] .ch-figure {
+  animation: ch-tremble 0.18s linear infinite;
+}
+
+/* Машет лапкой (онбординг) */
+.character .ch-arm-wave {
+  transform-origin: 15% 85%;
+  animation: ch-wave 1.2s ease-in-out infinite;
+}
+
+@keyframes ch-breathe {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.03, 1.04);
+  }
+}
+
+@keyframes ch-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.03, 0.97);
+  }
+  45% {
+    transform: translateY(-14px) scale(0.98, 1.02);
+  }
+}
+
+@keyframes ch-shadow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.35;
+  }
+  45% {
+    transform: scale(0.8);
+    opacity: 0.2;
+  }
+}
+
+@keyframes ch-sway {
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes ch-tremble {
+  0%,
+  100% {
+    transform: translateX(0) scale(0.94, 0.9);
+  }
+  25% {
+    transform: translateX(-1.2px) scale(0.94, 0.9);
+  }
+  75% {
+    transform: translateX(1.2px) scale(0.94, 0.9);
+  }
+}
+
+@keyframes ch-wave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-35deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .character .ch-figure,
+  .character .ch-shadow,
+  .character .ch-arm-wave {
+    animation: none !important;
+  }
+  /* Сжатость SCARED остаётся как поза, без дрожи */
+  .character[data-mood='SCARED'] .ch-figure {
+    transform: scale(0.94, 0.9);
+  }
+}

@@ -6,6 +6,7 @@ import { Onboarding } from './pages/client/Onboarding';
 import { ClientHome } from './pages/client/Home';
 import { PsyClients } from './pages/psychologist/Clients';
 import { PsyInvite } from './pages/psychologist/Invite';
+import { CharacterDemo } from './pages/dev/CharacterDemo';
 
 export function App() {
   return (
@@ -17,6 +18,7 @@ export function App() {
       <Route path="/home" element={<ClientHome />} />
       <Route path="/p/clients" element={<PsyClients />} />
       <Route path="/p/invite" element={<PsyInvite />} />
+      {import.meta.env.DEV && <Route path="/dev/character" element={<CharacterDemo />} />}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
