@@ -246,13 +246,17 @@ export const practices: PracticeSeed[] = [
   },
 ];
 
+/** upsert — сид можно запускать повторно, правки текстов подтягиваются. */
+export async function seedPractices(prisma: PrismaClient) {
+  for (const p of practices) {
+    await prisma.practice.upsert({ where: { id: p.id }, create: p, update: p });
+  }
+}
+
 async function main() {
   const prisma = new PrismaClient();
   try {
-    // upsert — сид можно запускать повторно, правки текстов подтягиваются
-    for (const p of practices) {
-      await prisma.practice.upsert({ where: { id: p.id }, create: p, update: p });
-    }
+    await seedPractices(prisma);
     const count = await prisma.practice.count();
     console.log(`Практик в БД: ${count}`);
   } finally {
@@ -260,4 +264,5 @@ async function main() {
   }
 }
 
-await main();
+// Запуск как скрипта (prisma db seed), а не при импорте из тестов
+if (import.meta.url === `file://${process.argv[1]}`) await main();

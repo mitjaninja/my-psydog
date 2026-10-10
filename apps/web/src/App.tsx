@@ -1,31 +1,23 @@
-import { Route, Routes } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import type { MeResponse } from '@psydog/shared';
-import { api } from './lib/api';
-
-function Placeholder() {
-  const me = useQuery({ queryKey: ['me'], queryFn: () => api<MeResponse>('/me') });
-
-  return (
-    <main className="mx-auto max-w-md p-4">
-      <h1 className="text-xl font-semibold">
-        Привет{me.data?.firstName ? `, ${me.data.firstName}` : ''}. Здесь скоро будет малыш
-      </h1>
-      <p className="mt-2 text-hint">
-        {me.isPending
-          ? 'Загружаемся…'
-          : me.data
-            ? `Telegram ID ${me.data.tgId}, роль: ${me.data.role ?? 'пока не выбрана'}`
-            : 'Не получилось связаться с сервером'}
-      </p>
-    </main>
-  );
-}
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { Gate } from './pages/Gate';
+import { Welcome } from './pages/Welcome';
+import { AcceptInvite } from './pages/AcceptInvite';
+import { Onboarding } from './pages/client/Onboarding';
+import { ClientHome } from './pages/client/Home';
+import { PsyClients } from './pages/psychologist/Clients';
+import { PsyInvite } from './pages/psychologist/Invite';
 
 export function App() {
   return (
     <Routes>
-      <Route path="*" element={<Placeholder />} />
+      <Route path="/" element={<Gate />} />
+      <Route path="/welcome" element={<Welcome />} />
+      <Route path="/invite/:code" element={<AcceptInvite />} />
+      <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/home" element={<ClientHome />} />
+      <Route path="/p/clients" element={<PsyClients />} />
+      <Route path="/p/invite" element={<PsyInvite />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

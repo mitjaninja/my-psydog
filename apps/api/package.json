@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit",
     "prisma": "dotenv -e ../../.env -- prisma",
     "db:seed": "dotenv -e ../../.env -- prisma db seed",
-    "test": "node --import tsx --test \"test/**/*.test.ts\""
+    "test": "dotenv -e ../../.env.test -- sh -c \"prisma migrate deploy >/dev/null && node --import tsx --test --test-concurrency=1 \\\"test/**/*.test.ts\\\"\""
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
