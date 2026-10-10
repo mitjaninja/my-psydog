@@ -91,7 +91,9 @@ export function PsyClientSummary() {
             {s.completions.map((c) => (
               <li key={c.id} className="flex justify-between gap-2">
                 <span>{c.title}</span>
-                <span className="shrink-0 text-sm text-hint">{formatDate(c.completedAt)}</span>
+                <span className="shrink-0 text-sm text-hint">
+                  {formatDate(c.completedAt, s.client.timezone)}
+                </span>
               </li>
             ))}
           </ul>
@@ -105,7 +107,7 @@ export function PsyClientSummary() {
             {s.sharedNotes.map((n) => (
               <li key={n.completionId}>
                 <p className="text-sm text-hint">
-                  {n.title} · {formatDate(n.completedAt)}
+                  {n.title} · {formatDate(n.completedAt, s.client.timezone)}
                 </p>
                 <p className="whitespace-pre-line">{n.note}</p>
               </li>

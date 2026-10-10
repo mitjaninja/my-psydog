@@ -212,7 +212,13 @@ export const SUMMARY_PERIODS = [7, 14, 30] as const;
 export type SummaryPeriod = (typeof SUMMARY_PERIODS)[number];
 
 export interface PsyClientSummary {
-  client: { id: string; alias: string; characterName: string; onboarded: boolean };
+  client: {
+    id: string;
+    alias: string;
+    characterName: string;
+    onboarded: boolean;
+    timezone: string;
+  };
   days: SummaryPeriod;
   /** Шкалы на сегодня (последние 7 дней) — как у клиента. */
   scales: NeedScales;

@@ -95,6 +95,7 @@ export function registerPsychologistRoutes(
           alias: client.alias,
           characterName: client.characterName,
           onboarded: Boolean(client.onboardedAt),
+          timezone: client.timezone,
         },
         days,
         scales: computeScales(

@@ -1,5 +1,6 @@
-export function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+/** Дата момента; timeZone — чтобы показывать дни так, как их прожил клиент. */
+export function formatDate(iso: string, timeZone?: string) {
+  return new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', timeZone });
 }
 
 /** Для дат вида YYYY-MM-DD (локальная дата клиента). */
