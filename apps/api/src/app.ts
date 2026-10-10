@@ -7,8 +7,15 @@ import { registerErrorHandler } from './errors.js';
 import { registerMeRoutes } from './routes/me.js';
 import { registerInviteRoutes } from './routes/invites.js';
 import { registerOnboardingRoutes } from './routes/onboarding.js';
+import { registerPracticeRoutes } from './routes/practices.js';
+import { registerClientRoutes, type ClientRouteDeps } from './routes/client.js';
 
-export function buildApp(deps: { config: Config; prisma: PrismaClient; logger?: boolean }) {
+export function buildApp(deps: {
+  config: Config;
+  prisma: PrismaClient;
+  logger?: boolean;
+  rng?: ClientRouteDeps['rng'];
+}) {
   const app = Fastify({ logger: deps.logger ?? true });
   const { prisma, config } = deps;
 
@@ -19,6 +26,8 @@ export function buildApp(deps: { config: Config; prisma: PrismaClient; logger?: 
   registerMeRoutes(app, { prisma });
   registerInviteRoutes(app, { prisma, botUsername: config.botUsername });
   registerOnboardingRoutes(app, { prisma });
+  registerPracticeRoutes(app, { prisma });
+  registerClientRoutes(app, { prisma, notesKey: config.notesKey, rng: deps.rng });
 
   return app;
 }

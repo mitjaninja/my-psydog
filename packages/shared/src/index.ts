@@ -119,3 +119,83 @@ export const onboardingBody = z.object({
   timezone: timezone.optional(),
 });
 export type OnboardingBody = z.infer<typeof onboardingBody>;
+
+// --- Практики и ежедневная петля клиента ---
+
+export type NeedScales = Record<Need, number>;
+
+export interface PracticeDto {
+  id: string;
+  need: Need;
+  title: string;
+  summary: string;
+  steps: string[];
+  inputType: InputType;
+  durationMin: number;
+  isComforting: boolean;
+}
+
+export interface ClientHomeResponse {
+  characterName: string;
+  mood: Mood;
+  checkedInToday: boolean;
+  scales: NeedScales;
+  assignments: { id: string; practice: PracticeDto }[];
+}
+
+export const checkinBody = z.object({
+  mood: z.enum(MOOD_IDS),
+  lowNeed: z.enum(NEED_IDS).nullable().optional(),
+  isHardDay: z.boolean(),
+});
+export type CheckinBody = z.infer<typeof checkinBody>;
+
+export interface CheckinResponse {
+  suggestedPractice: PracticeDto | null;
+}
+
+export const NOTE_MAX_LENGTH = 4000;
+
+export const completionBody = z.object({
+  practiceId: z.string().min(1).max(64),
+  note: z.string().trim().max(NOTE_MAX_LENGTH).optional(),
+  shareNote: z.boolean(),
+});
+export type CompletionBody = z.infer<typeof completionBody>;
+
+export interface CompletionResponse {
+  id: string;
+  need: Need;
+  scaleBefore: number;
+  scaleAfter: number;
+  /** Шаг 8: в заметке нашлись тревожные слова → показать кризисный экран. */
+  showCrisis: boolean;
+}
+
+export interface HistoryDay {
+  date: string; // YYYY-MM-DD, локальная дата клиента
+  items: {
+    id: string;
+    practiceId: string;
+    title: string;
+    need: Need;
+    completedAt: string;
+    note: string | null;
+    shareNote: boolean;
+  }[];
+}
+
+export const settingsBody = z
+  .object({
+    characterName: characterName.optional(),
+    reminderHour: reminderHour.optional(),
+    timezone: timezone.optional(),
+  })
+  .strict();
+export type SettingsBody = z.infer<typeof settingsBody>;
+
+export interface ClientSettings {
+  characterName: string;
+  reminderHour: number | null;
+  timezone: string;
+}

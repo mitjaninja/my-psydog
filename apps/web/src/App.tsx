@@ -4,6 +4,12 @@ import { Welcome } from './pages/Welcome';
 import { AcceptInvite } from './pages/AcceptInvite';
 import { Onboarding } from './pages/client/Onboarding';
 import { ClientHome } from './pages/client/Home';
+import { Checkin } from './pages/client/Checkin';
+import { Practice } from './pages/client/Practice';
+import { Done } from './pages/client/Done';
+import { History } from './pages/client/History';
+import { Settings } from './pages/client/Settings';
+import { Crisis } from './pages/client/Crisis';
 import { PsyClients } from './pages/psychologist/Clients';
 import { PsyInvite } from './pages/psychologist/Invite';
 import { CharacterDemo } from './pages/dev/CharacterDemo';
@@ -16,6 +22,12 @@ export function App() {
       <Route path="/invite/:code" element={<AcceptInvite />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/home" element={<ClientHome />} />
+      <Route path="/checkin" element={<Checkin />} />
+      <Route path="/practice/:id" element={<Practice />} />
+      <Route path="/done" element={<Done />} />
+      <Route path="/history" element={<History />} />
+      <Route path="/settings" element={<Settings />} />
+      <Route path="/crisis" element={<Crisis />} />
       <Route path="/p/clients" element={<PsyClients />} />
       <Route path="/p/invite" element={<PsyInvite />} />
       {import.meta.env.DEV && <Route path="/dev/character" element={<CharacterDemo />} />}
