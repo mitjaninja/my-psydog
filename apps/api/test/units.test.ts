@@ -88,3 +88,18 @@ test('локальная дата и час в таймзоне клиента',
   assert.equal(localHour('Europe/Moscow', t), 0);
   assert.equal(localHour('Asia/Yekaterinburg', t), 2);
 });
+
+test('production без BOT_TOKEN или NOTES_ENCRYPTION_KEY не стартует', async () => {
+  const { loadConfig } = await import('../src/config.js');
+  const key = Buffer.alloc(32, 3).toString('base64');
+  assert.throws(
+    () => loadConfig({ NODE_ENV: 'production', NOTES_ENCRYPTION_KEY: key }),
+    /BOT_TOKEN/,
+  );
+  assert.throws(
+    () => loadConfig({ NODE_ENV: 'production', BOT_TOKEN: '1:x' }),
+    /NOTES_ENCRYPTION_KEY/,
+  );
+  assert.ok(loadConfig({ NODE_ENV: 'production', BOT_TOKEN: '1:x', NOTES_ENCRYPTION_KEY: key }));
+  assert.equal(loadConfig({ NODE_ENV: 'development' }).isDev, true);
+});

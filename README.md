@@ -34,6 +34,41 @@ Vite проксирует `/api` на api, проверка: `curl http://localh
 
 `pnpm test` — юнит- и интеграционные тесты api на `node:test`. Интеграционные ходят в отдельную базу `app_test` из `.env.test` (миграции применяются автоматически, таблицы чистятся перед каждым тестом). Пользователю `app` нужно право `CREATEDB`, либо создай базу `app_test` заранее.
 
+## Деплой
+
+Один VPS в РФ с Docker. Сервисы в `docker-compose.yml`: `postgres` (данные в volume `pgdata`), `api` (API + бот + крон напоминаний; при старте `prisma migrate deploy`), `caddy` (статика Mini App, `/api/*` → api:3000, авто-HTTPS), `backup` (ежедневный `pg_dump`).
+
+1. Направь A-запись домена на VPS, открой порты 80 и 443.
+2. На сервере: `git clone`, затем `cp .env.example .env` и заполни:
+   - `BOT_TOKEN`, `BOT_USERNAME` — от @BotFather;
+   - `DOMAIN` — домен, `WEBAPP_URL=https://<DOMAIN>`;
+   - `POSTGRES_PASSWORD` — любой длинный пароль (`DATABASE_URL` compose соберёт сам);
+   - `NOTES_ENCRYPTION_KEY` — `openssl rand -base64 32`. **Не теряй и не меняй**: без него старые заметки не расшифровать;
+   - `NODE_ENV=production`.
+3. `docker compose up -d --build`, проверка: `curl https://<DOMAIN>/api/health`.
+4. В @BotFather: `/myapps` → бот → Edit Web App URL → `https://<DOMAIN>`. Кнопку меню бота api ставит сам при старте.
+
+Обновление: `git pull && docker compose up -d --build`. Логи: `docker compose logs -f api`.
+
+**Важно про уведомления психологу:** Telegram не даёт боту писать первым. Психолог должен один раз открыть чат с ботом и нажать «Старт», иначе кризисное уведомление не дойдёт (событие всё равно записывается).
+
+### Бэкап
+
+Сервис `backup` раз в сутки кладёт `app-YYYY-MM-DD.dump` в volume `backups` и удаляет файлы старше 14 дней. Забрать копию на свою машину:
+
+```bash
+docker compose cp backup:/backups ./backups
+```
+
+Восстановление в пустую базу:
+
+```bash
+docker compose cp ./backups/app-2026-01-01.dump postgres:/tmp/restore.dump
+docker compose exec postgres pg_restore -U app -d app --clean --if-exists /tmp/restore.dump
+```
+
+Volume с бэкапами живёт на том же сервере — периодически копируй дампы во внешнее хранилище.
+
 ## Структура
 
 ```
