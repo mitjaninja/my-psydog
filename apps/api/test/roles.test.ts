@@ -127,3 +127,13 @@ test('повторная регистрация психологом → 409, п
   });
   assert.equal(again.statusCode, 409);
 });
+
+test('пустое JSON-тело — 4xx, а не 500', async () => {
+  const code = await psychologistWithInvite(app, 100);
+  const res = await app.inject({
+    method: 'POST',
+    url: `/api/invites/${code}/accept`,
+    headers: { ...as(200), 'content-type': 'application/json' },
+  });
+  assert.equal(res.statusCode, 400);
+});

@@ -6,6 +6,7 @@ import { registerAuth } from './auth/plugin.js';
 import { registerErrorHandler } from './errors.js';
 import { registerMeRoutes } from './routes/me.js';
 import { registerInviteRoutes } from './routes/invites.js';
+import { registerOnboardingRoutes } from './routes/onboarding.js';
 
 export function buildApp(deps: { config: Config; prisma: PrismaClient; logger?: boolean }) {
   const app = Fastify({ logger: deps.logger ?? true });
@@ -17,6 +18,7 @@ export function buildApp(deps: { config: Config; prisma: PrismaClient; logger?: 
   app.get('/api/health', async (): Promise<HealthResponse> => ({ ok: true }));
   registerMeRoutes(app, { prisma });
   registerInviteRoutes(app, { prisma, botUsername: config.botUsername });
+  registerOnboardingRoutes(app, { prisma });
 
   return app;
 }

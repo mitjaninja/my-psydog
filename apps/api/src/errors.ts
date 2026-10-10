@@ -16,6 +16,11 @@ export function registerErrorHandler(app: FastifyInstance) {
     if (err instanceof ZodError) {
       return reply.code(400).send({ error: 'invalid_body', issues: err.issues });
     }
+    // Ошибки самого Fastify (пустое JSON-тело, битый JSON и т. п.) несут свой 4xx
+    const status = (err as { statusCode?: number }).statusCode;
+    if (status && status >= 400 && status < 500) {
+      return reply.code(status).send({ error: (err as { code?: string }).code ?? 'bad_request' });
+    }
     request.log.error(err);
     return reply.code(500).send({ error: 'internal' });
   });
