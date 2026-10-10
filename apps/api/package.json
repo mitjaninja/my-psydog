@@ -16,6 +16,7 @@
     "@psydog/shared": "workspace:*",
     "@telegram-apps/init-data-node": "^2.0.10",
     "fastify": "^5.2.0",
+    "grammy": "^1.46.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {

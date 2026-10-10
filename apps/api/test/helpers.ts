@@ -8,8 +8,20 @@ import { seedPractices } from '../prisma/seed.js';
 export const prisma = new PrismaClient();
 export const config = loadConfig(process.env);
 
-export function makeApp() {
-  return buildApp({ config, prisma, logger: false });
+/** Фейковый notifier: копит отправленные сообщения. */
+export function fakeNotifier() {
+  const sent: { tgId: bigint; text: string }[] = [];
+  return {
+    sent,
+    async send(tgId: bigint, text: string) {
+      sent.push({ tgId, text });
+      return true;
+    },
+  };
+}
+
+export function makeApp(notifier = fakeNotifier()) {
+  return buildApp({ config, prisma, logger: false, notifier });
 }
 
 /** Чистит все таблицы и заново кладёт практики. */

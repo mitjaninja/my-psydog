@@ -1,13 +1,18 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { api } from '../lib/api';
 
-/** «Мне очень плохо» — всегда на главном экране клиента. */
+/** «Мне очень плохо» — всегда на главном экране клиента. Экран открывается сразу, даже без сети. */
 export function CrisisButton() {
+  const navigate = useNavigate();
   return (
-    <Link
-      to="/crisis"
-      className="block rounded-2xl border border-hint/40 px-4 py-3 text-center text-text"
+    <button
+      onClick={() => {
+        void api('/client/crisis', { method: 'POST' }).catch(() => undefined);
+        navigate('/crisis');
+      }}
+      className="block w-full rounded-2xl border border-hint/40 px-4 py-3 text-center text-text"
     >
       Мне очень плохо
-    </Link>
+    </button>
   );
 }

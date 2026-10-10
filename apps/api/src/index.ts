@@ -1,9 +1,13 @@
 import { buildApp } from './app.js';
 import { loadConfig } from './config.js';
 import { prisma } from './db.js';
+import { logNotifier, telegramNotifier } from './notifier.js';
 
 const config = loadConfig();
-const app = buildApp({ config, prisma });
+const notifier = config.botToken
+  ? telegramNotifier(config.botToken, (e) => console.error('telegram send failed', e))
+  : logNotifier((m) => console.log(m));
+const app = buildApp({ config, prisma, notifier });
 
 try {
   await app.listen({ port: config.port, host: '0.0.0.0' });

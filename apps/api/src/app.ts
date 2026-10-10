@@ -9,15 +9,20 @@ import { registerInviteRoutes } from './routes/invites.js';
 import { registerOnboardingRoutes } from './routes/onboarding.js';
 import { registerPracticeRoutes } from './routes/practices.js';
 import { registerClientRoutes, type ClientRouteDeps } from './routes/client.js';
+import { registerCrisisRoutes } from './routes/crisis.js';
+import { hasCrisisKeywords } from './crisis/keywords.js';
+import { recordCrisis } from './crisis/service.js';
+import type { Notifier } from './notifier.js';
 
 export function buildApp(deps: {
   config: Config;
   prisma: PrismaClient;
   logger?: boolean;
   rng?: ClientRouteDeps['rng'];
+  notifier: Notifier;
 }) {
   const app = Fastify({ logger: deps.logger ?? true });
-  const { prisma, config } = deps;
+  const { prisma, config, notifier } = deps;
 
   registerErrorHandler(app);
   registerAuth(app, { prisma, botToken: config.botToken, isDev: config.isDev });
@@ -27,7 +32,18 @@ export function buildApp(deps: {
   registerInviteRoutes(app, { prisma, botUsername: config.botUsername });
   registerOnboardingRoutes(app, { prisma });
   registerPracticeRoutes(app, { prisma });
-  registerClientRoutes(app, { prisma, notesKey: config.notesKey, rng: deps.rng });
+  registerClientRoutes(app, {
+    prisma,
+    notesKey: config.notesKey,
+    rng: deps.rng,
+    // Ключевые слова в заметке → CrisisEvent(keyword) и кризисный экран у клиента
+    afterCompletion: async (client, note) => {
+      if (!hasCrisisKeywords(note)) return false;
+      await recordCrisis({ prisma, notifier }, client, 'keyword');
+      return true;
+    },
+  });
+  registerCrisisRoutes(app, { prisma, notifier });
 
   return app;
 }
