@@ -1,22 +1,22 @@
 import { Route, Routes } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import type { HealthResponse } from '@psydog/shared';
+import type { MeResponse } from '@psydog/shared';
+import { api } from './lib/api';
 
 function Placeholder() {
-  const health = useQuery({
-    queryKey: ['health'],
-    queryFn: async (): Promise<HealthResponse> => {
-      const res = await fetch('/api/health');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    },
-  });
+  const me = useQuery({ queryKey: ['me'], queryFn: () => api<MeResponse>('/me') });
 
   return (
     <main className="mx-auto max-w-md p-4">
-      <h1 className="text-xl font-semibold">Привет. Здесь скоро будет малыш</h1>
+      <h1 className="text-xl font-semibold">
+        Привет{me.data?.firstName ? `, ${me.data.firstName}` : ''}. Здесь скоро будет малыш
+      </h1>
       <p className="mt-2 text-hint">
-        API: {health.isPending ? '…' : health.data?.ok ? 'на связи' : 'недоступен'}
+        {me.isPending
+          ? 'Загружаемся…'
+          : me.data
+            ? `Telegram ID ${me.data.tgId}, роль: ${me.data.role ?? 'пока не выбрана'}`
+            : 'Не получилось связаться с сервером'}
       </p>
     </main>
   );

@@ -24,6 +24,12 @@ Prisma-команды запускаются из корня через `pnpm pr
 
 Vite проксирует `/api` на api, проверка: `curl http://localhost:5173/api/health` → `{"ok":true}`.
 
+## Авторизация
+
+Каждый запрос web → api несёт `Authorization: tma <initDataRaw>`; api проверяет подпись по `BOT_TOKEN` и срок (24 ч), затем создаёт или находит пользователя по Telegram ID.
+
+Для разработки в обычном браузере (только `NODE_ENV=development`): открой `http://localhost:5173/?devTgId=42` — web пошлёт `X-Dev-Tg-Id: 42` вместо initData. Без `?devTgId` используется последний введённый ID или `1`. В production этот заголовок не принимается, а api без `BOT_TOKEN` не стартует.
+
 ## Структура
 
 ```
@@ -34,4 +40,4 @@ packages/shared  общие типы и схемы
 
 ## Скрипты
 
-`pnpm dev` · `pnpm typecheck` · `pnpm lint` · `pnpm format`
+`pnpm dev` · `pnpm test` · `pnpm typecheck` · `pnpm lint` · `pnpm format`
