@@ -199,3 +199,34 @@ export interface ClientSettings {
   reminderHour: number | null;
   timezone: string;
 }
+
+// --- Кабинет психолога ---
+
+export interface PsyClientListItem {
+  id: string;
+  alias: string;
+  lastActivityAt: string | null;
+}
+
+export const SUMMARY_PERIODS = [7, 14, 30] as const;
+export type SummaryPeriod = (typeof SUMMARY_PERIODS)[number];
+
+export interface PsyClientSummary {
+  client: { id: string; alias: string; characterName: string; onboarded: boolean };
+  days: SummaryPeriod;
+  /** Шкалы на сегодня (последние 7 дней) — как у клиента. */
+  scales: NeedScales;
+  /** Сколько практик каждой потребности за период. */
+  completionsByNeed: NeedScales;
+  checkins: number;
+  hardDays: string[]; // YYYY-MM-DD
+  completions: { id: string; title: string; need: Need; completedAt: string }[];
+  /** Только заметки, которые клиент отметил «показать психологу». */
+  sharedNotes: { completionId: string; title: string; completedAt: string; note: string }[];
+  assignments: { id: string; practice: PracticeDto; activeFrom: string }[];
+}
+
+export const assignBody = z.object({
+  practiceIds: z.array(z.string().min(1).max(64)).min(1).max(20),
+});
+export type AssignBody = z.infer<typeof assignBody>;

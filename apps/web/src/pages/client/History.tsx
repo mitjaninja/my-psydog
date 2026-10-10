@@ -3,15 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { NEEDS, type HistoryDay } from '@psydog/shared';
 import { Card, ErrorNote, Hint, Loading, Screen } from '../../components/ui';
 import { api } from '../../lib/api';
-
-function formatDay(date: string) {
-  return new Date(`${date}T12:00:00Z`).toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    weekday: 'short',
-    timeZone: 'UTC',
-  });
-}
+import { formatDay } from '../../lib/format';
 
 export function History() {
   const history = useQuery({

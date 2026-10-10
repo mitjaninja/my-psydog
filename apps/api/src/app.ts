@@ -10,6 +10,7 @@ import { registerOnboardingRoutes } from './routes/onboarding.js';
 import { registerPracticeRoutes } from './routes/practices.js';
 import { registerClientRoutes, type ClientRouteDeps } from './routes/client.js';
 import { registerCrisisRoutes } from './routes/crisis.js';
+import { registerPsychologistRoutes } from './routes/psychologist.js';
 import { hasCrisisKeywords } from './crisis/keywords.js';
 import { recordCrisis } from './crisis/service.js';
 import type { Notifier } from './notifier.js';
@@ -44,6 +45,7 @@ export function buildApp(deps: {
     },
   });
   registerCrisisRoutes(app, { prisma, notifier });
+  registerPsychologistRoutes(app, { prisma, notesKey: config.notesKey });
 
   return app;
 }
