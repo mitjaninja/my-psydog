@@ -17,10 +17,12 @@
     "@telegram-apps/init-data-node": "^2.0.10",
     "fastify": "^5.2.0",
     "grammy": "^1.46.0",
+    "node-cron": "^3.0.3",
     "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "^20.17.10",
+    "@types/node-cron": "^3.0.11",
     "dotenv-cli": "^11.0.0",
     "prisma": "^6.19.3",
     "tsx": "^4.19.2",

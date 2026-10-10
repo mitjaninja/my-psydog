@@ -1,16 +1,26 @@
-import { Api } from 'grammy';
+import { Api, InlineKeyboard } from 'grammy';
+
+export interface SendOptions {
+  /** Добавить кнопку, открывающую Mini App. */
+  webAppUrl?: string;
+}
 
 /** Отправка сообщений пользователям в Telegram. В тестах — фейк. */
 export interface Notifier {
-  send(tgId: bigint, text: string): Promise<boolean>;
+  send(tgId: bigint, text: string, opts?: SendOptions): Promise<boolean>;
 }
 
-export function telegramNotifier(botToken: string, log: (e: unknown) => void): Notifier {
-  const api = new Api(botToken);
+export const OPEN_APP_LABEL = 'Открыть малыша';
+
+export function telegramNotifier(api: Api, log: (e: unknown) => void): Notifier {
   return {
-    async send(tgId, text) {
+    async send(tgId, text, opts) {
       try {
-        await api.sendMessage(Number(tgId), text);
+        await api.sendMessage(Number(tgId), text, {
+          ...(opts?.webAppUrl
+            ? { reply_markup: new InlineKeyboard().webApp(OPEN_APP_LABEL, opts.webAppUrl) }
+            : {}),
+        });
         return true;
       } catch (err) {
         // Например, психолог ни разу не открыл чат с ботом — Telegram не даст написать первым

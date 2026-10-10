@@ -9,6 +9,7 @@ export interface Config {
   isDev: boolean;
   botToken: string;
   botUsername: string;
+  webAppUrl: string;
   notesKey: Buffer;
   port: number;
 }
@@ -26,6 +27,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     isDev,
     botToken,
     botUsername: env.BOT_USERNAME ?? '',
+    webAppUrl: env.WEBAPP_URL ?? '',
     notesKey: parseNotesKey(rawKey || DEV_NOTES_KEY),
     port: Number(env.PORT ?? 3000),
   };

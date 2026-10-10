@@ -58,22 +58,25 @@ model Psychologist {
 }
 
 model Client {
-  id             String        @id @default(cuid())
-  userId         String        @unique
-  user           User          @relation(fields: [userId], references: [id])
-  psychologistId String
-  psychologist   Psychologist  @relation(fields: [psychologistId], references: [id])
-  alias          String // как психолог подписал клиента, напр. «А., вторник»
-  characterName  String        @default("Малыш")
-  reminderHour   Int? // локальный час напоминания, null = выкл
-  timezone       String        @default("Europe/Moscow")
-  onboardedAt    DateTime?
-  createdAt      DateTime      @default(now())
-  consents       Consent[]
-  checkins       Checkin[]
-  completions    Completion[]
-  assignments    Assignment[]
-  crisisEvents   CrisisEvent[]
+  id                String        @id @default(cuid())
+  userId            String        @unique
+  user              User          @relation(fields: [userId], references: [id])
+  psychologistId    String
+  psychologist      Psychologist  @relation(fields: [psychologistId], references: [id])
+  alias             String // как психолог подписал клиента, напр. «А., вторник»
+  characterName     String        @default("Малыш")
+  reminderHour      Int? // локальный час напоминания, null = выкл
+  timezone          String        @default("Europe/Moscow")
+  onboardedAt       DateTime?
+  // Напоминания (шаг 10): не чаще раза в день; после 3 дней тишины — одно «мы тут» и пауза
+  lastReminderAt    DateTime?
+  remindersPausedAt DateTime?
+  createdAt         DateTime      @default(now())
+  consents          Consent[]
+  checkins          Checkin[]
+  completions       Completion[]
+  assignments       Assignment[]
+  crisisEvents      CrisisEvent[]
 }
 
 model Invite {

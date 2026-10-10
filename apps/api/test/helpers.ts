@@ -10,11 +10,11 @@ export const config = loadConfig(process.env);
 
 /** Фейковый notifier: копит отправленные сообщения. */
 export function fakeNotifier() {
-  const sent: { tgId: bigint; text: string }[] = [];
+  const sent: { tgId: bigint; text: string; webAppUrl?: string }[] = [];
   return {
     sent,
-    async send(tgId: bigint, text: string) {
-      sent.push({ tgId, text });
+    async send(tgId: bigint, text: string, opts?: { webAppUrl?: string }) {
+      sent.push({ tgId, text, webAppUrl: opts?.webAppUrl });
       return true;
     },
   };
