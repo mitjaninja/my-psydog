@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Cloud } from 'lucide-react';
 import {
   NEED_IDS,
   NEEDS,
@@ -8,10 +9,15 @@ import {
   type PsyClientSummary,
   type SummaryPeriod,
 } from '@psydog/shared';
-import { NeedScales } from '../../components/NeedScales';
-import { Card, ErrorNote, Hint, Loading, Screen } from '../../components/ui';
-import { api } from '../../lib/api';
-import { formatDate, formatDay } from '../../lib/format';
+import { NeedScales } from '@/components/NeedScales';
+import { Actions, ErrorNote, Hint, Loading, Screen } from '@/components/layout';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { api } from '@/lib/api';
+import { formatDate, formatDay } from '@/lib/format';
 
 export function PsyClientSummary() {
   const { id = '' } = useParams();
@@ -21,123 +27,138 @@ export function PsyClientSummary() {
     queryFn: () => api<PsyClientSummary>(`/p/clients/${id}/summary?days=${days}`),
   });
 
+  const toList = (
+    <Button asChild variant="ghost" size="block" className="text-muted-foreground">
+      <Link to="/p/clients">К списку клиентов</Link>
+    </Button>
+  );
+
   if (summary.isPending) return <Loading />;
   if (!summary.data)
     return (
       <Screen>
         <ErrorNote>Не получилось открыть сводку.</ErrorNote>
-        <Link to="/p/clients" className="text-hint">
-          К списку клиентов
-        </Link>
+        {toList}
       </Screen>
     );
   const s = summary.data;
+  const tz = s.client.timezone;
 
   return (
     <Screen title={s.client.alias}>
       {!s.client.onboarded && <Hint>Клиент принял приглашение, знакомство ещё не завершено.</Hint>}
 
-      <div className="flex gap-2" role="tablist">
-        {SUMMARY_PERIODS.map((d) => (
-          <button
-            key={d}
-            role="tab"
-            aria-selected={days === d}
-            onClick={() => setDays(d)}
-            className={`flex-1 rounded-2xl py-2 ${days === d ? 'bg-button text-button-text' : 'bg-secondary-bg'}`}
-          >
-            {d} дней
-          </button>
-        ))}
-      </div>
+      <Tabs value={String(days)} onValueChange={(v) => setDays(Number(v) as SummaryPeriod)}>
+        <TabsList className="w-full">
+          {SUMMARY_PERIODS.map((d) => (
+            <TabsTrigger key={d} value={String(d)}>
+              {d} дней
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
       <Card>
-        <p className="mb-3 font-medium">Потребности сейчас</p>
-        <NeedScales scales={s.scales} />
+        <CardHeader>
+          <CardTitle>Потребности сейчас</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <NeedScales scales={s.scales} />
+        </CardContent>
       </Card>
 
-      <Card className="flex flex-col gap-1">
-        <p>Чек-инов за период: {s.checkins}</p>
-        <p>Практик за период: {s.completions.length}</p>
-        {s.completions.length > 0 && (
-          <p className="text-sm text-hint">
-            {NEED_IDS.filter((n) => s.completionsByNeed[n] > 0)
-              .map((n) => `${NEEDS[n].short} — ${s.completionsByNeed[n]}`)
-              .join(' · ')}
-          </p>
-        )}
+      <Card>
+        <CardContent className="flex flex-col gap-1 text-base">
+          <p>Чек-инов за период: {s.checkins}</p>
+          <p>Практик за период: {s.completions.length}</p>
+          {s.completions.length > 0 && (
+            <div className="mt-1 flex flex-wrap gap-1.5">
+              {NEED_IDS.filter((n) => s.completionsByNeed[n] > 0).map((n) => (
+                <Badge key={n} variant="secondary" className="bg-background">
+                  {NEEDS[n].short} · {s.completionsByNeed[n]}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </CardContent>
       </Card>
 
       {s.hardDays.length > 0 && (
         <Card>
-          <p className="mb-1 font-medium">Трудные дни</p>
-          <ul className="flex flex-col gap-1">
+          <CardHeader>
+            <CardTitle>Трудные дни</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-1 text-base">
             {s.hardDays.map((d) => (
-              <li key={d} className="flex items-center gap-2">
-                <span aria-hidden className="text-hint">
-                  ☁
-                </span>
+              <p key={d} className="flex items-center gap-2">
+                <Cloud className="size-4 text-muted-foreground" aria-hidden />
                 {formatDay(d)}
-              </li>
+              </p>
             ))}
-          </ul>
+          </CardContent>
         </Card>
       )}
 
       {s.completions.length > 0 && (
         <Card>
-          <p className="mb-1 font-medium">Выполненные практики</p>
-          <ul className="flex flex-col gap-1">
+          <CardHeader>
+            <CardTitle>Выполненные практики</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-1 text-base">
             {s.completions.map((c) => (
-              <li key={c.id} className="flex justify-between gap-2">
+              <p key={c.id} className="flex justify-between gap-2">
                 <span>{c.title}</span>
-                <span className="shrink-0 text-sm text-hint">
-                  {formatDate(c.completedAt, s.client.timezone)}
+                <span className="shrink-0 text-sm text-muted-foreground">
+                  {formatDate(c.completedAt, tz)}
                 </span>
-              </li>
+              </p>
             ))}
-          </ul>
+          </CardContent>
         </Card>
       )}
 
       {s.sharedNotes.length > 0 && (
         <Card>
-          <p className="mb-2 font-medium">Заметки, которыми клиент поделился</p>
-          <ul className="flex flex-col gap-3">
-            {s.sharedNotes.map((n) => (
-              <li key={n.completionId}>
-                <p className="text-sm text-hint">
-                  {n.title} · {formatDate(n.completedAt, s.client.timezone)}
+          <CardHeader>
+            <CardTitle>Заметки, которыми клиент поделился</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3 text-base">
+            {s.sharedNotes.map((n, i) => (
+              <div key={n.completionId} className="flex flex-col gap-1">
+                {i > 0 && <Separator className="mb-2" />}
+                <p className="text-sm text-muted-foreground">
+                  {n.title} · {formatDate(n.completedAt, tz)}
                 </p>
                 <p className="whitespace-pre-line">{n.note}</p>
-              </li>
+              </div>
             ))}
-          </ul>
+          </CardContent>
         </Card>
       )}
 
       <Card>
-        <p className="mb-1 font-medium">Назначено</p>
-        {s.assignments.length === 0 ? (
-          <Hint>Пока ничего не назначено.</Hint>
-        ) : (
-          <ul className="flex flex-col gap-1">
-            {s.assignments.map((a) => (
-              <li key={a.id}>{a.practice.title}</li>
-            ))}
-          </ul>
-        )}
+        <CardHeader>
+          <CardTitle>Назначено</CardTitle>
+        </CardHeader>
+        <CardContent className="text-base">
+          {s.assignments.length === 0 ? (
+            <Hint>Пока ничего не назначено.</Hint>
+          ) : (
+            <ul className="flex flex-col gap-1">
+              {s.assignments.map((a) => (
+                <li key={a.id}>{a.practice.title}</li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
       </Card>
 
-      <Link
-        to={`/p/clients/${id}/assign`}
-        className="rounded-2xl bg-button px-4 py-3 text-center text-button-text"
-      >
-        Назначить практики
-      </Link>
-      <Link to="/p/clients" className="text-center text-hint">
-        К списку клиентов
-      </Link>
+      <Actions>
+        <Button asChild size="block">
+          <Link to={`/p/clients/${id}/assign`}>Назначить практики</Link>
+        </Button>
+        {toList}
+      </Actions>
     </Screen>
   );
 }

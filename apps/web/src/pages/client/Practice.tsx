@@ -2,10 +2,14 @@ import { useCallback, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { NEEDS, type CompletionBody, type CompletionResponse } from '@psydog/shared';
-import { PracticeInput } from '../../components/PracticeInput';
-import { Button, Card, ErrorNote, Hint, Loading, Screen } from '../../components/ui';
-import { api } from '../../lib/api';
-import { usePractice } from '../../lib/client';
+import { CheckboxRow } from '@/components/CheckboxRow';
+import { PracticeInput } from '@/components/PracticeInput';
+import { Actions, ErrorNote, Loading, Screen } from '@/components/layout';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { api } from '@/lib/api';
+import { usePractice } from '@/lib/client';
 
 export function Practice() {
   const { id = '' } = useParams();
@@ -31,52 +35,55 @@ export function Practice() {
     },
   });
 
+  const back = (
+    <Button asChild variant="ghost" size="block" className="text-muted-foreground">
+      <Link to="/home">Вернуться к малышу</Link>
+    </Button>
+  );
+
   if (practice.isPending) return <Loading />;
   if (!practice.data)
     return (
       <Screen>
         <ErrorNote>Не нашли такую практику.</ErrorNote>
-        <Link to="/home" className="text-hint">
-          Вернуться к малышу
-        </Link>
+        {back}
       </Screen>
     );
   const p = practice.data;
 
   return (
     <Screen title={p.title}>
-      <Hint>
-        {NEEDS[p.need].short} · {p.durationMin} мин
-      </Hint>
-      <p>{p.summary}</p>
+      <div className="flex gap-2">
+        <Badge variant="secondary">{NEEDS[p.need].short}</Badge>
+        <Badge variant="outline">{p.durationMin} мин</Badge>
+      </div>
+      <p className="text-base">{p.summary}</p>
       {p.inputType !== 'CHECKLIST' && (
-        <Card>
-          <ol className="flex list-decimal flex-col gap-2 pl-5">
-            {p.steps.map((s, i) => (
-              <li key={i}>{s}</li>
-            ))}
-          </ol>
+        <Card className="text-base">
+          <CardContent>
+            <ol className="flex list-decimal flex-col gap-2 pl-5">
+              {p.steps.map((s, i) => (
+                <li key={i}>{s}</li>
+              ))}
+            </ol>
+          </CardContent>
         </Card>
       )}
       <PracticeInput practice={p} onChange={onNote} />
-      <label className="flex items-center gap-3">
-        <input
-          type="checkbox"
-          className="size-5 accent-[var(--button)]"
-          checked={shareNote}
-          onChange={(e) => setShareNote(e.target.checked)}
-        />
+      <CheckboxRow
+        checked={shareNote}
+        onChange={setShareNote}
+        className="bg-transparent p-0 has-[[data-state=checked]]:ring-0"
+      >
         Показать заметку психологу
-      </label>
-      <div className="mt-auto flex flex-col gap-2 pt-2">
-        <Button disabled={done.isPending} onClick={() => done.mutate()}>
+      </CheckboxRow>
+      <Actions>
+        <Button size="block" disabled={done.isPending} onClick={() => done.mutate()}>
           Готово
         </Button>
         {done.isError && <ErrorNote />}
-        <Link to="/home" className="text-center text-hint">
-          Вернуться к малышу
-        </Link>
-      </div>
+        {back}
+      </Actions>
     </Screen>
   );
 }

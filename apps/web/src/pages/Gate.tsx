@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
-import { ErrorNote, Loading, Screen } from '../components/ui';
-import { inviteCodeFrom, useMe } from '../lib/me';
+import { ErrorNote, Loading, Screen } from '@/components/layout';
+import { inviteCodeFrom, useMe } from '@/lib/me';
 
 /** Точка входа: решает, куда вести пользователя по роли и приглашению. */
 export function Gate() {

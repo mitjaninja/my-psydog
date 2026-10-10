@@ -1,4 +1,5 @@
 import { NEED_IDS, NEEDS, type Need, type NeedScales as Scales } from '@psydog/shared';
+import { Progress } from '@/components/ui/progress';
 
 /** Мягкие цвета шкал — без красного. */
 export const NEED_COLORS: Record<Need, string> = {
@@ -11,17 +12,17 @@ export const NEED_COLORS: Record<Need, string> = {
 
 export function ScaleBar({ need, value }: { need: Need; value: number }) {
   return (
-    <div>
+    <div className="flex flex-col gap-1.5">
       <div className="flex justify-between text-sm">
         <span>{NEEDS[need].short}</span>
-        {value === 0 && <span className="text-hint">ждёт заботы</span>}
+        {value === 0 && <span className="text-muted-foreground">ждёт заботы</span>}
       </div>
-      <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-bg">
-        <div
-          className="h-full rounded-full transition-[width] duration-1000 ease-out"
-          style={{ width: `${value}%`, background: NEED_COLORS[need] }}
-        />
-      </div>
+      <Progress
+        value={value}
+        indicatorColor={NEED_COLORS[need]}
+        aria-label={NEEDS[need].short}
+        className="h-2.5 bg-background"
+      />
     </div>
   );
 }

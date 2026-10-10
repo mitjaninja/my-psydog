@@ -11,10 +11,15 @@ import {
   type Need,
   type PracticeDto,
 } from '@psydog/shared';
-import { Character } from '../../components/Character';
-import { Button, Card, ErrorNote, Hint, Screen } from '../../components/ui';
-import { api } from '../../lib/api';
-import { useClientHome } from '../../lib/client';
+import { Character } from '@/components/Character';
+import { CheckboxRow } from '@/components/CheckboxRow';
+import { ChoiceCard } from '@/components/ChoiceCard';
+import { Actions, ErrorNote, Hint, Screen } from '@/components/layout';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { api } from '@/lib/api';
+import { useClientHome } from '@/lib/client';
 
 const MOOD_LABELS: Record<Mood, string> = {
   CALM: 'Спокоен',
@@ -26,24 +31,20 @@ const MOOD_LABELS: Record<Mood, string> = {
 function PracticeCard({ p }: { p: PracticeDto }) {
   return (
     <Card>
-      <p className="text-lg font-medium">{p.title}</p>
-      <p className="mt-1">{p.summary}</p>
-      <p className="mt-2 text-sm text-hint">
-        {NEEDS[p.need].short} · {p.durationMin} мин
-      </p>
+      <CardHeader>
+        <CardTitle className="text-lg">{p.title}</CardTitle>
+        <CardDescription className="text-base text-card-foreground">{p.summary}</CardDescription>
+        <div className="mt-1 flex gap-2">
+          <Badge variant="secondary">{NEEDS[p.need].short}</Badge>
+          <Badge variant="outline">{p.durationMin} мин</Badge>
+        </div>
+      </CardHeader>
     </Card>
   );
 }
 
-function Alternatives({
-  current,
-  need,
-  comforting,
-}: {
-  current: string;
-  need: Need | null;
-  comforting: boolean;
-}) {
+function Alternatives(props: { current: string; need: Need | null; comforting: boolean }) {
+  const { current, need, comforting } = props;
   const list = useQuery({
     queryKey: ['practices', need, comforting],
     queryFn: () =>
@@ -51,16 +52,18 @@ function Alternatives({
   });
   const others = list.data?.filter((p) => p.id !== current) ?? [];
   return (
-    <ul className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2">
       {others.map((p) => (
-        <li key={p.id}>
-          <Link to={`/practice/${p.id}`} className="block rounded-2xl bg-secondary-bg p-3">
-            <span className="font-medium">{p.title}</span>
-            <span className="block text-sm text-hint">{p.summary}</span>
-          </Link>
-        </li>
+        <Link key={p.id} to={`/practice/${p.id}`}>
+          <Card size="sm">
+            <CardHeader>
+              <CardTitle>{p.title}</CardTitle>
+              <CardDescription>{p.summary}</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
       ))}
-    </ul>
+    </div>
   );
 }
 
@@ -85,6 +88,12 @@ export function Checkin() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['client', 'home'] }),
   });
 
+  const back = (
+    <Button asChild variant="ghost" size="block" className="text-muted-foreground">
+      <Link to="/home">Вернуться к малышу</Link>
+    </Button>
+  );
+
   if (submit.data) {
     const p = submit.data.suggestedPractice;
     const comforting = isHardDay || mood === 'HIDING' || mood === 'SCARED';
@@ -93,26 +102,21 @@ export function Checkin() {
         {p ? (
           <>
             <PracticeCard p={p} />
-            <Link
-              to={`/practice/${p.id}`}
-              className="rounded-2xl bg-button px-4 py-3 text-center text-button-text"
-            >
-              Начать
-            </Link>
+            <Button asChild size="block">
+              <Link to={`/practice/${p.id}`}>Начать</Link>
+            </Button>
             {showOthers ? (
               <Alternatives current={p.id} need={lowNeed} comforting={comforting} />
             ) : (
-              <button className="text-hint" onClick={() => setShowOthers(true)}>
+              <Button variant="link" onClick={() => setShowOthers(true)}>
                 Выбрать другую
-              </button>
+              </Button>
             )}
           </>
         ) : (
           <Hint>Пока нечего предложить — загляни чуть позже.</Hint>
         )}
-        <Link to="/home" className="mt-auto text-center text-hint">
-          Вернуться к малышу
-        </Link>
+        <Actions>{back}</Actions>
       </Screen>
     );
   }
@@ -122,34 +126,21 @@ export function Checkin() {
       <Screen title={`Как ${name} сегодня?`}>
         <div className="grid grid-cols-2 gap-3">
           {MOOD_IDS.map((m) => (
-            <button
-              key={m}
-              onClick={() => setMood(m)}
-              aria-pressed={mood === m}
-              className={`rounded-2xl p-2 text-center ${mood === m ? 'bg-button/20 ring-2 ring-button' : 'bg-secondary-bg'}`}
-            >
+            <ChoiceCard key={m} selected={mood === m} onClick={() => setMood(m)}>
               <Character mood={m} size={96} />
               <span className="text-sm">{MOOD_LABELS[m]}</span>
-            </button>
+            </ChoiceCard>
           ))}
         </div>
-        <label className="flex items-center gap-3 rounded-2xl bg-secondary-bg p-4">
-          <input
-            type="checkbox"
-            className="size-5 accent-[var(--button)]"
-            checked={isHardDay}
-            onChange={(e) => setHardDay(e.target.checked)}
-          />
+        <CheckboxRow checked={isHardDay} onChange={setHardDay}>
           Сегодня тяжело
-        </label>
-        <div className="mt-auto flex flex-col gap-2">
-          <Button disabled={!mood} onClick={() => setStep(2)}>
+        </CheckboxRow>
+        <Actions>
+          <Button size="block" disabled={!mood} onClick={() => setStep(2)}>
             Дальше
           </Button>
-          <Link to="/home" className="text-center text-hint">
-            Вернуться к малышу
-          </Link>
-        </div>
+          {back}
+        </Actions>
       </Screen>
     );
   }
@@ -158,27 +149,27 @@ export function Checkin() {
     <Screen title={`Чего ${name} сегодня не хватает?`}>
       <div className="flex flex-col gap-2">
         {NEED_IDS.map((n) => (
-          <button
+          <ChoiceCard
             key={n}
+            selected={lowNeed === n}
             onClick={() => setLowNeed(lowNeed === n ? null : n)}
-            aria-pressed={lowNeed === n}
-            className={`rounded-2xl p-4 text-left ${lowNeed === n ? 'bg-button/20 ring-2 ring-button' : 'bg-secondary-bg'}`}
+            className="p-4 text-left"
           >
             <span className="font-medium">{NEEDS[n].title}</span>
-            <span className="block text-sm text-hint">{NEEDS[n].about}</span>
-          </button>
+            <span className="block text-sm text-muted-foreground">{NEEDS[n].about}</span>
+          </ChoiceCard>
         ))}
       </div>
       <Hint>Можно не выбирать — тогда предложим что-нибудь на твой вкус.</Hint>
-      <div className="mt-auto flex flex-col gap-2">
-        <Button disabled={submit.isPending} onClick={() => submit.mutate()}>
+      <Actions>
+        <Button size="block" disabled={submit.isPending} onClick={() => submit.mutate()}>
           Готово
         </Button>
         {submit.isError && <ErrorNote />}
-        <Button variant="secondary" onClick={() => setStep(1)}>
+        <Button size="block" variant="ghost" onClick={() => setStep(1)}>
           Назад
         </Button>
-      </div>
+      </Actions>
     </Screen>
   );
 }

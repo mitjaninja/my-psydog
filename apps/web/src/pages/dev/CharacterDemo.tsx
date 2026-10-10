@@ -1,6 +1,7 @@
 import { MOOD_IDS } from '@psydog/shared';
-import { Character } from '../../components/Character';
-import { Screen } from '../../components/ui';
+import { Character } from '@/components/Character';
+import { Screen } from '@/components/layout';
+import { Card, CardContent, CardDescription } from '@/components/ui/card';
 
 const LABELS = { CALM: 'Спокойный', JOYFUL: 'Радостный', HIDING: 'Прячется', SCARED: 'Испуганный' };
 
@@ -10,17 +11,21 @@ export function CharacterDemo() {
     <Screen title="Персонаж">
       <div className="grid grid-cols-2 gap-4">
         {MOOD_IDS.map((mood) => (
-          <figure key={mood} className="rounded-2xl bg-secondary-bg p-2 text-center">
-            <Character mood={mood} size={140} />
-            <figcaption className="text-sm text-hint">
-              {LABELS[mood]} · {mood}
-            </figcaption>
-          </figure>
+          <Card key={mood} size="sm">
+            <CardContent className="text-center">
+              <Character mood={mood} size={140} />
+              <CardDescription>
+                {LABELS[mood]} · {mood}
+              </CardDescription>
+            </CardContent>
+          </Card>
         ))}
-        <figure className="col-span-2 rounded-2xl bg-secondary-bg p-2 text-center">
-          <Character mood="JOYFUL" waving size={140} />
-          <figcaption className="text-sm text-hint">Машет (онбординг)</figcaption>
-        </figure>
+        <Card size="sm" className="col-span-2">
+          <CardContent className="text-center">
+            <Character mood="JOYFUL" waving size={140} />
+            <CardDescription>Машет (онбординг)</CardDescription>
+          </CardContent>
+        </Card>
       </div>
     </Screen>
   );

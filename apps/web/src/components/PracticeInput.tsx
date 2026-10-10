@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import { Pause, Play, Plus } from 'lucide-react';
 import type { PracticeDto } from '@psydog/shared';
-import { Button } from './ui';
-
-const textareaClass =
-  'w-full rounded-2xl bg-secondary-bg px-4 py-3 text-base text-text outline-none placeholder:text-hint';
+import { CheckboxRow } from '@/components/CheckboxRow';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 function Timer({ minutes }: { minutes: number }) {
   const total = minutes * 60;
@@ -24,18 +26,27 @@ function Timer({ minutes }: { minutes: number }) {
   const mm = String(Math.floor(left / 60)).padStart(2, '0');
   const ss = String(left % 60).padStart(2, '0');
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl bg-secondary-bg p-4">
-      <span className="font-mono text-4xl tabular-nums" aria-live="polite">
-        {mm}:{ss}
-      </span>
-      {left === 0 ? (
-        <span className="text-hint">Время вышло. Можно побыть так ещё, сколько захочется.</span>
-      ) : (
-        <Button variant={running ? 'secondary' : 'primary'} onClick={() => setRunning(!running)}>
-          {running ? 'Пауза' : left === total ? 'Запустить таймер' : 'Продолжить'}
-        </Button>
-      )}
-    </div>
+    <Card>
+      <CardContent className="flex flex-col items-center gap-3">
+        <span className="font-mono text-4xl tabular-nums" aria-live="polite">
+          {mm}:{ss}
+        </span>
+        {left === 0 ? (
+          <span className="text-center text-muted-foreground">
+            Время вышло. Можно побыть так ещё, сколько захочется.
+          </span>
+        ) : (
+          <Button
+            size="block"
+            variant={running ? 'secondary' : 'default'}
+            onClick={() => setRunning(!running)}
+          >
+            {running ? <Pause /> : <Play />}
+            {running ? 'Пауза' : left === total ? 'Запустить таймер' : 'Продолжить'}
+          </Button>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -69,43 +80,41 @@ export function PracticeInput({
     <div className="flex flex-col gap-3">
       {practice.inputType === 'TIMER' && <Timer minutes={practice.durationMin} />}
 
-      {practice.inputType === 'CHECKLIST' && (
-        <div className="flex flex-col gap-2">
-          {practice.steps.map((s, i) => (
-            <label key={i} className="flex items-start gap-3 rounded-2xl bg-secondary-bg p-3">
-              <input
-                type="checkbox"
-                className="mt-1 size-5 shrink-0 accent-[var(--button)]"
-                checked={checked[i]}
-                onChange={(e) =>
-                  setChecked(checked.map((c, j) => (j === i ? e.target.checked : c)))
-                }
-              />
-              <span>{s}</span>
-            </label>
-          ))}
-        </div>
-      )}
+      {practice.inputType === 'CHECKLIST' &&
+        practice.steps.map((s, i) => (
+          <CheckboxRow
+            key={i}
+            checked={checked[i] ?? false}
+            onChange={(v) => setChecked(checked.map((c, j) => (j === i ? v : c)))}
+          >
+            {s}
+          </CheckboxRow>
+        ))}
 
       {practice.inputType === 'LIST' && (
         <div className="flex flex-col gap-2">
           {items.map((item, i) => (
-            <input
+            <Input
               key={i}
-              className={textareaClass}
+              className="h-12 rounded-xl text-base"
               placeholder={`Пункт ${i + 1}`}
               value={item}
               onChange={(e) => setItems(items.map((v, j) => (j === i ? e.target.value : v)))}
             />
           ))}
-          <button className="text-left text-hint" onClick={() => setItems([...items, ''])}>
-            + ещё пункт
-          </button>
+          <Button
+            variant="ghost"
+            className="self-start text-muted-foreground"
+            onClick={() => setItems([...items, ''])}
+          >
+            <Plus />
+            ещё пункт
+          </Button>
         </div>
       )}
 
-      <textarea
-        className={`${textareaClass} min-h-28`}
+      <Textarea
+        className="min-h-28 rounded-xl text-base"
         placeholder={practice.inputType === 'TEXT' ? 'Напиши здесь…' : 'Заметка, если хочется'}
         value={text}
         onChange={(e) => setText(e.target.value)}

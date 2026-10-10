@@ -19,6 +19,8 @@ export function initTelegram(): boolean {
   init();
   themeParams.mountSync.ifAvailable();
   themeParams.bindCssVars.ifAvailable();
+  // dark:-варианты shadcn-компонентов — по теме Telegram
+  if (themeParams.isDark()) document.documentElement.classList.add('dark');
   miniApp.mountSync.ifAvailable();
   miniApp.bindCssVars.ifAvailable();
   miniApp.ready.ifAvailable();

@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import type { CompletionResponse } from '@psydog/shared';
-import { Character } from '../../components/Character';
-import { ScaleBar } from '../../components/NeedScales';
-import { Card, Screen } from '../../components/ui';
-import { randomDonePhrase } from '../../config/phrases';
+import { Character } from '@/components/Character';
+import { ScaleBar } from '@/components/NeedScales';
+import { Actions, Screen } from '@/components/layout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { randomDonePhrase } from '@/config/phrases';
 
 export function Done() {
   const state = useLocation().state as CompletionResponse | null;
@@ -25,14 +27,15 @@ export function Done() {
       <Character mood="JOYFUL" size={200} />
       <p className="text-center text-xl font-medium">{phrase}</p>
       <Card>
-        <ScaleBar need={state.need} value={value} />
+        <CardContent>
+          <ScaleBar need={state.need} value={value} />
+        </CardContent>
       </Card>
-      <Link
-        to="/home"
-        className="mt-auto rounded-2xl bg-button px-4 py-3 text-center text-button-text"
-      >
-        К малышу
-      </Link>
+      <Actions>
+        <Button asChild size="block">
+          <Link to="/home">К малышу</Link>
+        </Button>
+      </Actions>
     </Screen>
   );
 }

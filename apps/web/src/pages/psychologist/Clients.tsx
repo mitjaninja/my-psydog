@@ -1,10 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { ChevronRight, UserPlus } from 'lucide-react';
 import type { PsyClientListItem } from '@psydog/shared';
-import { Card, ErrorNote, Hint, Loading, Screen } from '../../components/ui';
-import { api } from '../../lib/api';
-import { formatDate } from '../../lib/format';
-import { useMe } from '../../lib/me';
+import { Actions, ErrorNote, Hint, Loading, Screen } from '@/components/layout';
+import { Button } from '@/components/ui/button';
+import { Card, CardAction, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { api } from '@/lib/api';
+import { formatDate } from '@/lib/format';
+import { useMe } from '@/lib/me';
 
 export function PsyClients() {
   const me = useMe();
@@ -26,24 +29,31 @@ export function PsyClients() {
         {clients.data?.map((c) => (
           <li key={c.id}>
             <Link to={`/p/clients/${c.id}`}>
-              <Card>
-                <p className="font-medium">{c.alias}</p>
-                <p className="text-sm text-hint">
-                  {c.lastActivityAt
-                    ? `Последняя отметка: ${formatDate(c.lastActivityAt)}`
-                    : 'Пока без отметок'}
-                </p>
+              <Card size="sm">
+                <CardHeader>
+                  <CardTitle className="text-base">{c.alias}</CardTitle>
+                  <CardDescription>
+                    {c.lastActivityAt
+                      ? `Последняя отметка: ${formatDate(c.lastActivityAt)}`
+                      : 'Пока без отметок'}
+                  </CardDescription>
+                  <CardAction className="self-center text-muted-foreground">
+                    <ChevronRight />
+                  </CardAction>
+                </CardHeader>
               </Card>
             </Link>
           </li>
         ))}
       </ul>
-      <Link
-        to="/p/invite"
-        className="mt-auto rounded-2xl bg-button px-4 py-3 text-center text-button-text"
-      >
-        Пригласить клиента
-      </Link>
+      <Actions>
+        <Button asChild size="block">
+          <Link to="/p/invite">
+            <UserPlus />
+            Пригласить клиента
+          </Link>
+        </Button>
+      </Actions>
     </Screen>
   );
 }

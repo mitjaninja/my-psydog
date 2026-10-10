@@ -2,9 +2,31 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ClientSettings, SettingsBody } from '@psydog/shared';
-import { ReminderPicker } from '../../components/ReminderPicker';
-import { Button, Card, ErrorNote, Hint, Input, Loading, Screen } from '../../components/ui';
-import { api } from '../../lib/api';
+import { ReminderPicker } from '@/components/ReminderPicker';
+import { Actions, ErrorNote, Loading, Screen } from '@/components/layout';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { api } from '@/lib/api';
 
 export function Settings() {
   const settings = useQuery({
@@ -13,7 +35,6 @@ export function Settings() {
   });
   const [name, setName] = useState('');
   const [hour, setHour] = useState<number | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState(false);
   const navigate = useNavigate();
   const qc = useQueryClient();
 
@@ -47,47 +68,76 @@ export function Settings() {
 
   return (
     <Screen title="Настройки">
-      <Card className="flex flex-col gap-3">
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-hint">Имя малыша</span>
-          <Input maxLength={30} value={name} onChange={(e) => setName(e.target.value)} />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-hint">Напоминание</span>
-          <ReminderPicker value={hour} onChange={setHour} />
-        </label>
-        <Button disabled={!name.trim() || save.isPending} onClick={() => save.mutate()}>
-          {save.isSuccess ? 'Сохранено' : 'Сохранить'}
-        </Button>
-        {save.isError && <ErrorNote />}
-      </Card>
-
-      <Card className="flex flex-col gap-3">
-        <p className="font-medium">Удалить мои данные</p>
-        <Hint>
-          Удалятся все отметки, практики, заметки и согласия. Психолог больше не увидит сводку.
-          Вернуть их не получится.
-        </Hint>
-        {confirmDelete ? (
-          <>
-            <Button disabled={wipe.isPending} onClick={() => wipe.mutate()}>
-              Да, удалить всё
-            </Button>
-            <Button variant="secondary" onClick={() => setConfirmDelete(false)}>
-              Оставить
-            </Button>
-          </>
-        ) : (
-          <Button variant="secondary" onClick={() => setConfirmDelete(true)}>
-            Удалить данные
+      <Card>
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="name">Имя малыша</Label>
+            <Input
+              id="name"
+              maxLength={30}
+              className="h-12 rounded-xl bg-background text-base"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="reminder">Напоминание</Label>
+            <ReminderPicker id="reminder" value={hour} onChange={setHour} />
+          </div>
+          <Button
+            size="block"
+            disabled={!name.trim() || save.isPending}
+            onClick={() => save.mutate()}
+          >
+            {save.isSuccess ? 'Сохранено' : 'Сохранить'}
           </Button>
-        )}
-        {wipe.isError && <ErrorNote />}
+          {save.isError && <ErrorNote />}
+        </CardContent>
       </Card>
 
-      <Link to="/home" className="mt-auto text-center text-hint">
-        Вернуться к малышу
-      </Link>
+      <Card>
+        <CardHeader>
+          <CardTitle>Удалить мои данные</CardTitle>
+          <CardDescription>
+            Удалятся все отметки, практики, заметки и согласия. Психолог больше не увидит сводку.
+            Вернуть их не получится.
+          </CardDescription>
+        </CardHeader>
+        <CardFooter className="border-t-0 bg-transparent pb-4">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button size="block" variant="outline">
+                Удалить данные
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Удалить всё?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Отметки, практики, заметки и согласия удалятся без возможности восстановления.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Оставить</AlertDialogCancel>
+                <AlertDialogAction disabled={wipe.isPending} onClick={() => wipe.mutate()}>
+                  Да, удалить всё
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </CardFooter>
+        {wipe.isError && (
+          <CardContent>
+            <ErrorNote />
+          </CardContent>
+        )}
+      </Card>
+
+      <Actions>
+        <Button asChild variant="ghost" size="block" className="text-muted-foreground">
+          <Link to="/home">Вернуться к малышу</Link>
+        </Button>
+      </Actions>
     </Screen>
   );
 }

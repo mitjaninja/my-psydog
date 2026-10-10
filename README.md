@@ -89,10 +89,16 @@ Volume с бэкапами живёт на том же сервере — пер
 ## Структура
 
 ```
-apps/web         Mini App (React 18 + Vite + Tailwind)
+apps/web         Mini App (React 18 + Vite + Tailwind v4 + shadcn/ui)
 apps/api         Fastify + Prisma + grammY + node-cron
 packages/shared  общие типы и схемы
 ```
+
+## UI
+
+Интерфейс собран на [shadcn/ui](https://ui.shadcn.com) (стиль radix-nova, иконки lucide). Компоненты лежат в `apps/web/src/components/ui` и принадлежат проекту — их можно править. Новый компонент: `cd apps/web && pnpm dlx shadcn@latest add <name>`.
+
+Токены shadcn (`--background`, `--primary`, `--card`, `--muted-foreground`…) в `apps/web/src/index.css` берутся из темы Telegram (`--tg-theme-*`), поэтому светлая и тёмная тема Telegram работают без отдельной палитры. Класс `.dark` ставится по теме Telegram для `dark:`-вариантов внутри компонентов. Красного в палитре нет: `--destructive` нейтральный.
 
 ## Скрипты
 

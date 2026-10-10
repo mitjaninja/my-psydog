@@ -1,8 +1,11 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { AcceptInviteResponse, InvitePreview } from '@psydog/shared';
-import { Button, Card, ErrorNote, Hint, Loading, Screen } from '../components/ui';
-import { api } from '../lib/api';
+import { Actions, ErrorNote, Hint, Loading, Screen } from '@/components/layout';
+import { Character } from '@/components/Character';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { api } from '@/lib/api';
 
 export function AcceptInvite() {
   const { code = '' } = useParams();
@@ -28,11 +31,11 @@ export function AcceptInvite() {
   if (!preview.data || preview.data.status !== 'active') {
     return (
       <Screen title="Эта ссылка уже не работает">
-        <Card>
-          <p>
+        <Card className="text-base">
+          <CardContent>
             Похоже, ею уже воспользовались или прошло слишком много времени. Попроси у своего
             психолога новую ссылку — малыш подождёт.
-          </p>
+          </CardContent>
         </Card>
       </Screen>
     );
@@ -40,19 +43,20 @@ export function AcceptInvite() {
 
   return (
     <Screen title="Тебя приглашают познакомиться с малышом">
-      <Card>
-        <p>
+      <Character mood="JOYFUL" size={150} />
+      <Card className="text-base">
+        <CardContent>
           <b>{preview.data.psychologistName}</b> приглашает тебя делать небольшие практики между
           встречами.
-        </p>
+        </CardContent>
       </Card>
       <Hint>Дальше расскажем, как всё устроено, и спросим согласие на обработку данных.</Hint>
-      <div className="mt-auto flex flex-col gap-2">
-        <Button disabled={accept.isPending} onClick={() => accept.mutate()}>
+      <Actions>
+        <Button size="block" disabled={accept.isPending} onClick={() => accept.mutate()}>
           Принять приглашение
         </Button>
         {accept.isError && <ErrorNote />}
-      </div>
+      </Actions>
     </Screen>
   );
 }
