@@ -65,15 +65,19 @@ Vite проксирует `/api` на api, проверка: `curl http://localh
 
 Один VPS в РФ с Docker. Сервисы в `docker-compose.yml`: `postgres` (данные в volume `pgdata`), `api` (API + бот + крон напоминаний; при старте `prisma migrate deploy`), `caddy` (статика Mini App, `/api/*` → api:3000, авто-HTTPS), `backup` (ежедневный `pg_dump`).
 
-1. Направь A-запись домена на VPS, открой порты 80 и 443.
-2. На сервере: `git clone`, затем `cp .env.example .env` и заполни:
-   - `BOT_TOKEN`, `BOT_USERNAME` — от @BotFather;
-   - `DOMAIN` — домен, `WEBAPP_URL=https://<DOMAIN>`;
-   - `POSTGRES_PASSWORD` — любой длинный пароль (`DATABASE_URL` compose соберёт сам);
-   - `NOTES_ENCRYPTION_KEY` — `openssl rand -base64 32`. **Не теряй и не меняй**: без него старые заметки не расшифровать;
-   - `NODE_ENV=production`.
-3. `docker compose up -d --build`, проверка: `curl https://<DOMAIN>/api/health`.
-4. В @BotFather: `/myapps` → бот → Edit Web App URL → `https://<DOMAIN>`. Кнопку меню бота api ставит сам при старте.
+**Сервер:** Ubuntu 22.04 или 24.04, от 2 vCPU / 2 ГБ RAM / 30 ГБ диска (Timeweb Cloud, Selectel, Yandex Cloud).
+
+1. Купи домен и направь A-запись на IP сервера.
+2. Зайди на сервер и выполни:
+   ```bash
+   git clone https://github.com/mitjaninja/my-psydog && cd my-psydog
+   sudo bash deploy/install.sh
+   ```
+   Скрипт ставит Docker из репозитория Ubuntu, прописывает зеркало Docker Hub (`mirror.gcr.io`, своё — через `DOCKER_MIRROR=…`), включает swap при RAM < 3 ГБ и файрвол (22, 80, 443), проверяет доступность Telegram и Let's Encrypt. Затем спрашивает домен, username и токен бота, сам генерирует `POSTGRES_PASSWORD` и `NOTES_ENCRYPTION_KEY` и запускает `docker compose up -d --build`.
+3. **Сохрани копию `NOTES_ENCRYPTION_KEY` из `.env`** в надёжном месте: без него старые заметки не расшифровать.
+4. В @BotFather: `/myapps` → бот → Edit Web App URL → `https://<домен>`. Имя, описания и кнопку меню бота api ставит само при старте.
+
+Репозиторий приватный — для `git clone` на сервере нужен доступ: Deploy key (GitHub → Settings → Deploy keys, только чтение) или personal access token.
 
 Обновление: `git pull && docker compose up -d --build`. Логи: `docker compose logs -f api`.
 
