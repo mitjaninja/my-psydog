@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { buildApp } from './app.js';
-import { createBot, setupMenuButton } from './bot/bot.js';
+import { createBot, setupBotProfile } from './bot/bot.js';
 import { loadConfig } from './config.js';
 import { prisma } from './db.js';
 import { logNotifier, telegramNotifier, type Notifier } from './notifier.js';
@@ -22,8 +22,8 @@ try {
 
 if (bot) {
   if (config.webAppUrl.startsWith('https://')) {
-    await setupMenuButton(bot, config.webAppUrl).catch((e) =>
-      app.log.error(e, 'setChatMenuButton failed'),
+    await setupBotProfile(bot, config.webAppUrl).catch((e) =>
+      app.log.error(e, 'bot profile setup failed'),
     );
   } else {
     app.log.warn('WEBAPP_URL must be https:// — menu button and web_app buttons will not work');

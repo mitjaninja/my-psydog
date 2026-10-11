@@ -59,7 +59,7 @@ export function Onboarding() {
       {step === 0 && (
         <>
           <Character mood="JOYFUL" waving size={180} />
-          <h1 className="text-center text-2xl font-semibold">Привет. Это твой малыш</h1>
+          <h1 className="text-center text-2xl font-semibold">Привет. Это Пушок, твой малыш</h1>
           <p className="text-center text-base">Он немного похож на тебя в детстве.</p>
         </>
       )}
@@ -134,7 +134,7 @@ export function Onboarding() {
           <Character mood="JOYFUL" size={120} />
           <div className="flex flex-col gap-2">
             <Label htmlFor="characterName" className="text-lg">
-              Как назовёшь малыша?
+              Как будут звать малыша?
             </Label>
             <Input
               id="characterName"
@@ -144,6 +144,7 @@ export function Onboarding() {
               onChange={(e) => setName(e.target.value)}
               placeholder={DEFAULT_CHARACTER_NAME}
             />
+            <Hint>Можно оставить «{DEFAULT_CHARACTER_NAME}» или придумать своё имя.</Hint>
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="reminder" className="text-lg">

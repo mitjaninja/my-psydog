@@ -10,7 +10,7 @@ export interface Notifier {
   send(tgId: bigint, text: string, opts?: SendOptions): Promise<boolean>;
 }
 
-export const OPEN_APP_LABEL = 'Открыть малыша';
+export const OPEN_APP_LABEL = 'К Пушку';
 
 export function telegramNotifier(api: Api, log: (e: unknown) => void): Notifier {
   return {

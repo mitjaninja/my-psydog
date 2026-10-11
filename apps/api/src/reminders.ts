@@ -5,15 +5,17 @@ import type { Notifier } from './notifier.js';
 export const PAUSE_AFTER_DAYS = 3;
 
 // Мягкие фразы: без «не забудь», «ты пропустил». TODO: проверка схема-терапевтом.
-export const REMINDER_PHRASES = [
-  'Малыш тебя ждёт, когда будет минутка.',
-  'Загляни к малышу, если захочется. Он будет рад.',
-  'Малыш машет лапкой. Как ты сегодня?',
-  'Если найдётся пара минут — малыш рядом.',
-  'Малыш соскучился. Заглянешь?',
-  'Немного заботы о себе сегодня? Малыш тут.',
+// Имя — то, что выбрал клиент; везде в именительном падеже, чтобы подходило любое.
+export const REMINDER_PHRASES: ((name: string) => string)[] = [
+  (n) => `${n} тебя ждёт, когда будет минутка.`,
+  (n) => `Загляни к малышу, если захочется. ${n} будет рад.`,
+  (n) => `${n} машет лапкой. Как ты сегодня?`,
+  (n) => `Если найдётся пара минут — ${n} рядом.`,
+  (n) => `${n} соскучился. Заглянешь?`,
+  (n) => `Немного заботы о себе сегодня? ${n} тут.`,
 ];
-export const PAUSE_PHRASE = 'Мы тут, когда захочешь вернуться. Малыш всегда рад тебя видеть.';
+export const pausePhrase = (name: string) =>
+  `Мы тут, когда захочешь вернуться. ${name} всегда рад тебя видеть.`;
 
 export type ReminderDecision = 'none' | 'gentle' | 'pause';
 
@@ -81,8 +83,8 @@ export async function runReminders(
 
     const text =
       decision === 'pause'
-        ? PAUSE_PHRASE
-        : REMINDER_PHRASES[Math.floor(rng() * REMINDER_PHRASES.length)]!;
+        ? pausePhrase(c.characterName)
+        : REMINDER_PHRASES[Math.floor(rng() * REMINDER_PHRASES.length)]!(c.characterName);
     // Отметку ставим до отправки: даже если Telegram не доставит, повторять в этот день не будем
     await prisma.client.update({
       where: { id: c.id },

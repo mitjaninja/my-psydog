@@ -94,7 +94,7 @@ export const CONSENT_TYPES = [
 ] as const;
 export type ConsentType = (typeof CONSENT_TYPES)[number];
 
-export const DEFAULT_CHARACTER_NAME = 'Малыш';
+export const DEFAULT_CHARACTER_NAME = 'Пушок';
 
 export const characterName = z.string().trim().min(1).max(30);
 export const reminderHour = z.number().int().min(0).max(23).nullable();

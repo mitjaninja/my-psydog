@@ -1,12 +1,7 @@
 import { after, beforeEach, test } from 'node:test';
 import assert from 'node:assert/strict';
-import {
-  decideReminder,
-  PAUSE_PHRASE,
-  runReminders,
-  type ReminderState,
-} from '../src/reminders.js';
-import { startReply } from '../src/bot/bot.js';
+import { decideReminder, pausePhrase, runReminders, type ReminderState } from '../src/reminders.js';
+import { BOT_PROFILE, startReply } from '../src/bot/bot.js';
 import { DAY_MS } from '../src/lib/dates.js';
 import { as, fakeNotifier, makeApp, prisma, psychologistAndClient, resetDb } from './helpers.js';
 
@@ -55,7 +50,7 @@ test('после 3 дней без активности — одно «мы ту
 
 test('/start: кнопка web_app, с приглашением — с параметром', () => {
   const plain = startReply('', 'https://app.example');
-  assert.equal(plain.keyboard.inline_keyboard[0]![0]!.text, 'Открыть малыша');
+  assert.equal(plain.keyboard.inline_keyboard[0]![0]!.text, 'К Пушку');
   assert.deepEqual(
     (plain.keyboard.inline_keyboard[0]![0]! as { web_app: { url: string } }).web_app,
     { url: 'https://app.example' },
@@ -69,6 +64,15 @@ test('/start: кнопка web_app, с приглашением — с пара�
     (junk.keyboard.inline_keyboard[0]![0]! as { web_app: { url: string } }).web_app,
     { url: 'https://app.example' },
   );
+});
+
+test('профиль бота укладывается в лимиты Telegram и без запретных слов', () => {
+  assert.ok(BOT_PROFILE.name.length <= 64);
+  assert.ok(BOT_PROFILE.description.length <= 512);
+  assert.ok(BOT_PROFILE.shortDescription.length <= 120);
+  for (const text of Object.values(BOT_PROFILE)) {
+    assert.doesNotMatch(text, /не забудь|пропустил|должен/i);
+  }
 });
 
 // --- Интеграция с БД ---
@@ -98,6 +102,7 @@ test('напоминание приходит в выставленный час
   assert.equal(notifier.sent[0]!.tgId, 200n);
   assert.equal(notifier.sent[0]!.webAppUrl, 'https://app.example');
   assert.doesNotMatch(notifier.sent[0]!.text, /не забудь|пропустил|должен/i);
+  assert.match(notifier.sent[0]!.text, /Пушок/);
   assert.equal((await runReminders(deps, at('2026-10-12T17:45:00Z'))).length, 0);
   assert.equal(notifier.sent.length, 1);
 });
@@ -122,7 +127,7 @@ test('3 дня тишины: одно «мы тут», дальше пауза',
     r.map((x) => x.decision),
     ['pause'],
   );
-  assert.equal(notifier.sent[0]!.text, PAUSE_PHRASE);
+  assert.equal(notifier.sent[0]!.text, pausePhrase('Пушок'));
   assert.equal((await runReminders(deps, new Date(NOW.getTime() + DAY_MS))).length, 0);
   assert.equal((await runReminders(deps, new Date(NOW.getTime() + 2 * DAY_MS))).length, 0);
 

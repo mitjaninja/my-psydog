@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  DEFAULT_CHARACTER_NAME,
   MOOD_IDS,
   NEED_IDS,
   NEEDS,
@@ -69,7 +70,7 @@ function Alternatives(props: { current: string; need: Need | null; comforting: b
 
 export function Checkin() {
   const home = useClientHome();
-  const name = home.data?.characterName ?? 'Малыш';
+  const name = home.data?.characterName ?? DEFAULT_CHARACTER_NAME;
   const [step, setStep] = useState<1 | 2>(1);
   const [mood, setMood] = useState<Mood | null>(null);
   const [lowNeed, setLowNeed] = useState<Need | null>(null);

@@ -46,7 +46,7 @@ test('психолог регистрируется, создаёт ссылку
 
   const me = (await app.inject({ url: '/api/me', headers: as(200) })).json();
   assert.equal(me.role, 'CLIENT');
-  assert.equal(me.client.characterName, 'Малыш');
+  assert.equal(me.client.characterName, 'Пушок');
 
   const client = await prisma.client.findFirstOrThrow({ include: { psychologist: true } });
   assert.equal(client.alias, 'А., вторник');

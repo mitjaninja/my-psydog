@@ -95,7 +95,7 @@ function Arms({ mood, waving }: { mood: Mood; waving: boolean }) {
 }
 
 /**
- * Персонаж «Малыш»: круглое существо без пола и возраста.
+ * Персонаж (по умолчанию — Пушок): круглое существо без пола и возраста.
  * Цвет тела — CSS-переменная --character-body.
  */
 export function Character({
@@ -117,7 +117,7 @@ export function Character({
       className={`character mx-auto block ${className}`}
       data-mood={mood}
       role="img"
-      aria-label="Малыш"
+      aria-label="Персонаж"
     >
       <ellipse
         className="ch-shadow"

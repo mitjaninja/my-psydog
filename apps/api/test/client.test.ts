@@ -20,7 +20,7 @@ test('главный экран без чек-ина: CALM, шкалы по ну
   const home = (await app.inject({ url: '/api/client/home', headers: C })).json();
   assert.equal(home.mood, 'CALM');
   assert.equal(home.checkedInToday, false);
-  assert.equal(home.characterName, 'Малыш');
+  assert.equal(home.characterName, 'Пушок');
   assert.deepEqual(Object.values(home.scales), [0, 0, 0, 0, 0]);
 });
 
