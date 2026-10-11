@@ -22,7 +22,6 @@ export function registerOnboardingRoutes(app: FastifyInstance, deps: { prisma: P
       prisma.client.update({
         where: { id: client.id },
         data: {
-          characterName: body.characterName,
           reminderHour: body.reminderHour,
           ...(body.timezone ? { timezone: body.timezone } : {}),
           onboardedAt: new Date(),

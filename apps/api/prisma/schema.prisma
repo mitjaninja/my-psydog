@@ -64,7 +64,6 @@ model Client {
   psychologistId    String
   psychologist      Psychologist  @relation(fields: [psychologistId], references: [id])
   alias             String // как психолог подписал клиента, напр. «А., вторник»
-  characterName     String        @default("Пушок")
   reminderHour      Int? // локальный час напоминания, null = выкл
   timezone          String        @default("Europe/Moscow")
   onboardedAt       DateTime?

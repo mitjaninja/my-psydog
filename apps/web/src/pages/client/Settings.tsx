@@ -24,7 +24,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { api } from '@/lib/api';
 
@@ -33,21 +32,19 @@ export function Settings() {
     queryKey: ['client', 'settings'],
     queryFn: () => api<ClientSettings>('/client/settings'),
   });
-  const [name, setName] = useState('');
   const [hour, setHour] = useState<number | null>(null);
   const navigate = useNavigate();
   const qc = useQueryClient();
 
   useEffect(() => {
     if (settings.data) {
-      setName(settings.data.characterName);
       setHour(settings.data.reminderHour);
     }
   }, [settings.data]);
 
   const save = useMutation({
     mutationFn: () => {
-      const body: SettingsBody = { characterName: name.trim(), reminderHour: hour };
+      const body: SettingsBody = { reminderHour: hour };
       return api<ClientSettings>('/client/settings', {
         method: 'PATCH',
         body: JSON.stringify(body),
@@ -71,24 +68,10 @@ export function Settings() {
       <Card>
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="name">Имя малыша</Label>
-            <Input
-              id="name"
-              maxLength={30}
-              className="h-12 rounded-xl bg-background text-base"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
             <Label htmlFor="reminder">Напоминание</Label>
             <ReminderPicker id="reminder" value={hour} onChange={setHour} />
           </div>
-          <Button
-            size="block"
-            disabled={!name.trim() || save.isPending}
-            onClick={() => save.mutate()}
-          >
+          <Button size="block" disabled={save.isPending} onClick={() => save.mutate()}>
             {save.isSuccess ? 'Сохранено' : 'Сохранить'}
           </Button>
           {save.isError && <ErrorNote />}

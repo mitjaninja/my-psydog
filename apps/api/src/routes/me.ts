@@ -19,12 +19,7 @@ export function registerMeRoutes(app: FastifyInstance, deps: { prisma: PrismaCli
       role: user.role,
       startParam: tg.startParam,
       psychologist: psychologist ? { displayName: psychologist.displayName } : null,
-      client: client
-        ? {
-            characterName: client.characterName,
-            onboardedAt: client.onboardedAt?.toISOString() ?? null,
-          }
-        : null,
+      client: client ? { onboardedAt: client.onboardedAt?.toISOString() ?? null } : null,
     };
   });
 }

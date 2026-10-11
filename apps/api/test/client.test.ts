@@ -20,7 +20,6 @@ test('главный экран без чек-ина: CALM, шкалы по ну
   const home = (await app.inject({ url: '/api/client/home', headers: C })).json();
   assert.equal(home.mood, 'CALM');
   assert.equal(home.checkedInToday, false);
-  assert.equal(home.characterName, 'Пушок');
   assert.deepEqual(Object.values(home.scales), [0, 0, 0, 0, 0]);
 });
 
@@ -105,19 +104,22 @@ test('шкала не выше 100', async () => {
   assert.equal(home.scales.LIMITS, 100);
 });
 
-test('настройки: имя малыша и напоминание', async () => {
+test('настройки: напоминание меняется, имя персонажа — нет', async () => {
   const r = await app.inject({
     method: 'PATCH',
     url: '/api/client/settings',
     headers: C,
-    payload: { characterName: 'Пушок', reminderHour: null },
+    payload: { reminderHour: null },
   });
   assert.equal(r.statusCode, 200);
-  assert.deepEqual(r.json(), {
-    characterName: 'Пушок',
-    reminderHour: null,
-    timezone: 'Europe/Moscow',
+  assert.deepEqual(r.json(), { reminderHour: null, timezone: 'Europe/Moscow' });
+  const rename = await app.inject({
+    method: 'PATCH',
+    url: '/api/client/settings',
+    headers: C,
+    payload: { characterName: 'Кузя' },
   });
+  assert.equal(rename.statusCode, 400);
   const bad = await app.inject({
     method: 'PATCH',
     url: '/api/client/settings',

@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { CHARACTER_NAME } from '@psydog/shared';
 import { ChevronRight, History as HistoryIcon, Settings as SettingsIcon } from 'lucide-react';
 import { Character } from '@/components/Character';
 import { CrisisButton } from '@/components/CrisisButton';
@@ -20,12 +21,12 @@ export function ClientHome() {
         <CrisisButton />
       </Screen>
     );
-  const { characterName, mood, checkedInToday, scales, assignments } = home.data;
+  const { mood, checkedInToday, scales, assignments } = home.data;
 
   return (
     <Screen>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">{characterName}</h1>
+        <h1 className="text-2xl font-semibold">{CHARACTER_NAME}</h1>
         <Button variant="ghost" size="icon-lg" asChild>
           <Link to="/settings" aria-label="Настройки">
             <SettingsIcon />
@@ -34,7 +35,7 @@ export function ClientHome() {
       </div>
       <Character mood={mood} size={190} />
       <Button size="block" onClick={() => navigate('/checkin')}>
-        {checkedInToday ? `Как ${characterName} сейчас?` : `Как ${characterName} сегодня?`}
+        {checkedInToday ? `Как ${CHARACTER_NAME} сейчас?` : `Как ${CHARACTER_NAME} сегодня?`}
       </Button>
 
       <Card>

@@ -93,7 +93,6 @@ export function registerPsychologistRoutes(
         client: {
           id: client.id,
           alias: client.alias,
-          characterName: client.characterName,
           onboarded: Boolean(client.onboardedAt),
           timezone: client.timezone,
         },

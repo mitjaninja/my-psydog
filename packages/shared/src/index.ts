@@ -14,7 +14,7 @@ export interface MeResponse {
   role: Role | null;
   startParam: string | null;
   psychologist: { displayName: string } | null;
-  client: { characterName: string; onboardedAt: string | null } | null;
+  client: { onboardedAt: string | null } | null;
 }
 
 // --- Роли и приглашения ---
@@ -94,9 +94,9 @@ export const CONSENT_TYPES = [
 ] as const;
 export type ConsentType = (typeof CONSENT_TYPES)[number];
 
-export const DEFAULT_CHARACTER_NAME = 'Пушок';
+/** Имя персонажа одно для всех, переименовать нельзя. */
+export const CHARACTER_NAME = 'Пушок';
 
-export const characterName = z.string().trim().min(1).max(30);
 export const reminderHour = z.number().int().min(0).max(23).nullable();
 export const timezone = z.string().refine((tz) => {
   try {
@@ -114,7 +114,6 @@ export const onboardingBody = z.object({
     shareWithPsychologist: z.literal(true),
     crisisNotify: z.boolean(),
   }),
-  characterName,
   reminderHour,
   timezone: timezone.optional(),
 });
@@ -136,7 +135,6 @@ export interface PracticeDto {
 }
 
 export interface ClientHomeResponse {
-  characterName: string;
   mood: Mood;
   checkedInToday: boolean;
   scales: NeedScales;
@@ -187,7 +185,6 @@ export interface HistoryDay {
 
 export const settingsBody = z
   .object({
-    characterName: characterName.optional(),
     reminderHour: reminderHour.optional(),
     timezone: timezone.optional(),
   })
@@ -195,7 +192,6 @@ export const settingsBody = z
 export type SettingsBody = z.infer<typeof settingsBody>;
 
 export interface ClientSettings {
-  characterName: string;
   reminderHour: number | null;
   timezone: string;
 }
@@ -215,7 +211,6 @@ export interface PsyClientSummary {
   client: {
     id: string;
     alias: string;
-    characterName: string;
     onboarded: boolean;
     timezone: string;
   };

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { DEFAULT_CHARACTER_NAME, NEED_IDS, NEEDS, type OnboardingBody } from '@psydog/shared';
+import { NEED_IDS, NEEDS, type OnboardingBody } from '@psydog/shared';
 import { Actions, ErrorNote, Hint, Screen } from '@/components/layout';
 import { Character } from '@/components/Character';
 import { CheckboxRow } from '@/components/CheckboxRow';
@@ -9,7 +9,6 @@ import { ReminderPicker } from '@/components/ReminderPicker';
 import { NEED_COLORS } from '@/components/NeedScales';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -21,7 +20,6 @@ export function Onboarding() {
   const [dataProcessing, setDataProcessing] = useState(false);
   const [shareWithPsychologist, setShare] = useState(false);
   const [crisisNotify, setCrisisNotify] = useState(false);
-  const [name, setName] = useState(DEFAULT_CHARACTER_NAME);
   const [reminderHour, setReminderHour] = useState<number | null>(20);
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -30,7 +28,6 @@ export function Onboarding() {
     mutationFn: () => {
       const body: OnboardingBody = {
         consents: { dataProcessing: true, shareWithPsychologist: true, crisisNotify },
-        characterName: name.trim() || DEFAULT_CHARACTER_NAME,
         reminderHour,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
@@ -133,22 +130,8 @@ export function Onboarding() {
         <>
           <Character mood="JOYFUL" size={120} />
           <div className="flex flex-col gap-2">
-            <Label htmlFor="characterName" className="text-lg">
-              Как будут звать малыша?
-            </Label>
-            <Input
-              id="characterName"
-              maxLength={30}
-              className="h-12 rounded-xl text-base"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={DEFAULT_CHARACTER_NAME}
-            />
-            <Hint>Можно оставить «{DEFAULT_CHARACTER_NAME}» или придумать своё имя.</Hint>
-          </div>
-          <div className="flex flex-col gap-2">
             <Label htmlFor="reminder" className="text-lg">
-              Когда напоминать о малыше?
+              Когда напоминать о Пушке?
             </Label>
             <ReminderPicker id="reminder" value={reminderHour} onChange={setReminderHour} />
             <Hint>

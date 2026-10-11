@@ -62,7 +62,6 @@ export function registerClientRoutes(app: FastifyInstance, deps: ClientRouteDeps
       }),
     ]);
     return {
-      characterName: client.characterName,
       // Без чек-ина сегодня — всегда спокойный: отсутствие активности не грустит
       mood: checkin?.mood ?? 'CALM',
       checkedInToday: Boolean(checkin),
@@ -154,14 +153,14 @@ export function registerClientRoutes(app: FastifyInstance, deps: ClientRouteDeps
 
   app.get('/api/client/settings', async (request): Promise<ClientSettings> => {
     const c = await currentClient(prisma, request);
-    return { characterName: c.characterName, reminderHour: c.reminderHour, timezone: c.timezone };
+    return { reminderHour: c.reminderHour, timezone: c.timezone };
   });
 
   app.patch('/api/client/settings', async (request): Promise<ClientSettings> => {
     const client = await currentClient(prisma, request);
     const body = settingsBody.parse(request.body);
     const c = await prisma.client.update({ where: { id: client.id }, data: body });
-    return { characterName: c.characterName, reminderHour: c.reminderHour, timezone: c.timezone };
+    return { reminderHour: c.reminderHour, timezone: c.timezone };
   });
 
   app.delete('/api/client/data', async (request) => {

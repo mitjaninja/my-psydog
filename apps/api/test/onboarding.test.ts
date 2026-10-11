@@ -11,7 +11,6 @@ after(async () => {
 
 const valid = {
   consents: { dataProcessing: true, shareWithPsychologist: true, crisisNotify: true },
-  characterName: 'Пушок',
   reminderHour: 20,
   timezone: 'Asia/Yekaterinburg',
 };
@@ -56,7 +55,6 @@ test('согласия пишутся с version 1.0, onboardedAt выставл
   );
   const client = await prisma.client.findFirstOrThrow();
   assert.ok(client.onboardedAt);
-  assert.equal(client.characterName, 'Пушок');
   assert.equal(client.reminderHour, 20);
   assert.equal(client.timezone, 'Asia/Yekaterinburg');
 

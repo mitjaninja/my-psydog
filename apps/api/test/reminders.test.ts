@@ -1,6 +1,11 @@
 import { after, beforeEach, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { decideReminder, pausePhrase, runReminders, type ReminderState } from '../src/reminders.js';
+import {
+  decideReminder,
+  PAUSE_PHRASE,
+  runReminders,
+  type ReminderState,
+} from '../src/reminders.js';
 import { BOT_PROFILE, startReply } from '../src/bot/bot.js';
 import { DAY_MS } from '../src/lib/dates.js';
 import { as, fakeNotifier, makeApp, prisma, psychologistAndClient, resetDb } from './helpers.js';
@@ -127,7 +132,7 @@ test('3 дня тишины: одно «мы тут», дальше пауза',
     r.map((x) => x.decision),
     ['pause'],
   );
-  assert.equal(notifier.sent[0]!.text, pausePhrase('Пушок'));
+  assert.equal(notifier.sent[0]!.text, PAUSE_PHRASE);
   assert.equal((await runReminders(deps, new Date(NOW.getTime() + DAY_MS))).length, 0);
   assert.equal((await runReminders(deps, new Date(NOW.getTime() + 2 * DAY_MS))).length, 0);
 
